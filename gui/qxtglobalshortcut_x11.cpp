@@ -188,11 +188,51 @@ bool QxtGlobalShortcutPrivate::nativeEventFilter(const QByteArray & eventType,
         activateShortcut(keycode,
             // Mod1Mask == Alt, Mod4Mask == Meta
             keystate & (ShiftMask | ControlMask | Mod1Mask | Mod4Mask));
-    }
 #if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-    return prevEventFilter ? prevEventFilter(message) : false;
+        return prevEventFilter ? prevEventFilter(message) : false;
 #else
-	return false;
+        return false;
+#endif
+    }
+
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
+    XEvent *event = static_cast<XEvent *>(message);
+    if (event->type == KeyPress)
+    {
+        XKeyEvent *key = reinterpret_cast<XKeyEvent *>(event);
+        unsigned int keycode = key->keycode;
+        unsigned int keystate = key->state;
+#else
+
+    xcb_key_release_event_t *rkev = 0;
+    if (eventType == "xcb_generic_event_t") {
+        xcb_generic_event_t *ev = static_cast<xcb_generic_event_t *>(message);
+        if ((ev->response_type & 127) == XCB_KEY_RELEASE)
+            rkev = static_cast<xcb_key_release_event_t *>(message);
+    }
+
+    if (rkev != 0) {
+        unsigned int keycode = rkev->detail;
+        unsigned int keystate = 0;
+        if(rkev->state & XCB_MOD_MASK_1)
+            keystate |= Mod1Mask;
+        if(rkev->state & XCB_MOD_MASK_CONTROL)
+            keystate |= ControlMask;
+        if(rkev->state & XCB_MOD_MASK_4)
+            keystate |= Mod4Mask;
+        if(rkev->state & XCB_MOD_MASK_SHIFT)
+            keystate |= ShiftMask;
+#endif
+        heldShortcut(keycode,
+            // Mod1Mask == Alt, Mod4Mask == Meta
+            keystate & (ShiftMask | ControlMask | Mod1Mask | Mod4Mask));
+    }
+
+
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
+        return prevEventFilter ? prevEventFilter(message) : false;
+#else
+        return false;
 #endif
 }
 

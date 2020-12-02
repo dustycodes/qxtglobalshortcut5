@@ -70,6 +70,7 @@ public:
 #endif // Q_OS_MAC
 
     static void activateShortcut(quint32 nativeKey, quint32 nativeMods);
+    static void heldShortcut(quint32 nativeKey, quint32 nativeMods);
 
 private:
     static quint32 nativeKeycode(Qt::Key keycode);

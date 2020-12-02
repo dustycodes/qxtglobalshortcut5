@@ -110,6 +110,13 @@ void QxtGlobalShortcutPrivate::activateShortcut(quint32 nativeKey, quint32 nativ
         emit shortcut->activated();
 }
 
+void QxtGlobalShortcutPrivate::heldShortcut(quint32 nativeKey, quint32 nativeMods)
+{
+    QxtGlobalShortcut* shortcut = shortcuts.value(qMakePair(nativeKey, nativeMods));
+    if (shortcut && shortcut->isEnabled())
+        emit shortcut->held();
+}
+
 /*!
     \class QxtGlobalShortcut
     \inmodule QxtWidgets

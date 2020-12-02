@@ -59,6 +59,7 @@ public Q_SLOTS:
 
 Q_SIGNALS:
     void activated();
+    void held();
 };
 
 #endif // QXTGLOBALSHORTCUT_H
